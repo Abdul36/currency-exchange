@@ -1,80 +1,79 @@
 import React, { useState, useEffect } from "react";
 
-const CurrencyExchange = () => {
-  const [amount, setAmount] = useState(0);
+const CurrencyConverter = () => {
+  const [exchangeRates, setExchangeRates] = useState({});
+  const [amount, setAmount] = useState(1);
   const [fromCurrency, setFromCurrency] = useState("USD");
   const [toCurrency, setToCurrency] = useState("PKR");
-  const [exchangeRates, setExchangeRates] = useState({});
-  const [convertedAmount, setConvertedAmount] = useState(0);
-  const [currencyOptions, setCurrencyOptions] = useState([]);
+  const [convertedAmount, setConvertedAmount] = useState(null);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
+    fetchExchangeRates();
+  }, [amount, toCurrency]);
+
+  const fetchExchangeRates = () => {
     fetch(
-      "http://data.fixer.io/api/latest?access_key=ce1474595ef8a8831f801460a457a6e8"
+      `https://v6.exchangerate-api.com/v6/3e55e2db16acecc7e256b7f6/latest/${fromCurrency}`
     )
-      .then((response) => response.json())
-      .then((data) => {
-        console.log(data);
-        setExchangeRates(data.rates);
-        setCurrencyOptions(Object.keys(data.rates));
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error("Failed to fetch exchange rates");
+        }
+        return response.json();
       })
-      .catch((error) => console.error(error));
-  }, []);
+      .then((data) => {
+        setExchangeRates(data.conversion_rates);
+        setConvertedAmount(amount * data.conversion_rates[toCurrency]);
+      })
+      .catch((error) => {
+        setError(error.message);
+      });
+  };
 
   const handleAmountChange = (e) => {
-    const newAmount = parseFloat(e.target.value);
-    setAmount(newAmount);
-    const converted = newAmount * exchangeRates[toCurrency];
-    setConvertedAmount(isNaN(converted) ? 0 : converted);
+    const value = parseFloat(e.target.value);
+    setAmount(isNaN(value) ? 0 : value);
+  };
+
+  const handleFromCurrencyChange = (e) => {
+    setFromCurrency(e.target.value);
+  };
+
+  const handleToCurrencyChange = (e) => {
+    setToCurrency(e.target.value);
   };
 
   const handleExchange = () => {
-    const converted = amount * exchangeRates[toCurrency];
-    setConvertedAmount(isNaN(converted) ? 0 : converted);
+    setConvertedAmount(amount * exchangeRates[toCurrency]);
   };
 
   return (
-    <div className="currency-converter">
+    <div>
       <h2>Currency Converter</h2>
-      <div className="input-section">
-        <input
-          type="number"
-          value={amount}
-          onChange={handleAmountChange}
-          className="amount-input"
-        />
-        <select
-          value={fromCurrency}
-          onChange={(e) => setFromCurrency(e.target.value)}
-          className="currency-select"
-        >
-          {currencyOptions.map((currency) => (
-            <option key={currency} value={currency}>
-              {currency}
-            </option>
-          ))}
-        </select>
-        <span className="arrow">→</span>
-        <select
-          value={toCurrency}
-          onChange={(e) => setToCurrency(e.target.value)}
-          className="currency-select"
-        >
-          {currencyOptions.map((currency) => (
-            <option key={currency} value={currency}>
-              {currency}
-            </option>
-          ))}
-        </select>
-      </div>
-      <button onClick={handleExchange} className="exchange-btn">
-        Exchange
-      </button>
-      <p className="converted-amount">
-        Converted Amount: {convertedAmount} {toCurrency}
-      </p>
+      <input type="number" value={amount} onChange={handleAmountChange} />
+      <select value={fromCurrency} onChange={handleFromCurrencyChange}>
+        {Object.keys(exchangeRates).map((currency) => (
+          <option key={currency} value={currency}>
+            {currency}
+          </option>
+        ))}
+      </select>
+      <select value={toCurrency} onChange={handleToCurrencyChange}>
+        {Object.keys(exchangeRates).map((currency) => (
+          <option key={currency} value={currency}>
+            {currency}
+          </option>
+        ))}
+      </select>
+      <button onClick={handleExchange}>Exchange</button>
+      {error && <p>{error}</p>}
+      <h3>
+        Converted Amount:{" "}
+        {convertedAmount !== null ? convertedAmount.toFixed(2) : ""}
+      </h3>
     </div>
   );
 };
 
-export default CurrencyExchange;
+export default CurrencyConverter;
