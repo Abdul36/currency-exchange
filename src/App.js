@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from "react";
-// import "./CurrencyExchange.css"; // Import CSS file for styling
 
 const CurrencyExchange = () => {
   const [amount, setAmount] = useState(0);
