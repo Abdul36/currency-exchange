@@ -6,14 +6,15 @@ const CurrencyConverter = () => {
   const [fromCurrency, setFromCurrency] = useState("USD");
   const [toCurrency, setToCurrency] = useState("PKR");
   const [convertedAmount, setConvertedAmount] = useState(null);
-  const [convertedTo, setConvertedTo] = useState(""); // State to hold the currency it is converted to
+  const [convertedTo, setConvertedTo] = useState("");
   const [error, setError] = useState(null);
 
   useEffect(() => {
     fetchExchangeRates();
-  }, [toCurrency]); // Fetch exchange rates only when "toCurrency" changes
+  }, [fromCurrency, toCurrency]); // Fetch exchange rates when either fromCurrency or toCurrency changes
 
   const fetchExchangeRates = () => {
+    if (!fromCurrency || !toCurrency) return; // Skip fetching if fromCurrency or toCurrency is not selected
     fetch(
       `https://v6.exchangerate-api.com/v6/3e55e2db16acecc7e256b7f6/latest/${fromCurrency}`
     )
@@ -45,10 +46,9 @@ const CurrencyConverter = () => {
 
   const handleExchange = () => {
     if (!isNaN(amount)) {
-      // Check if the amount is a valid number
       const converted = amount * exchangeRates[toCurrency];
       setConvertedAmount(converted);
-      setConvertedTo(toCurrency); // Set the currency it is converted to
+      setConvertedTo(toCurrency);
     } else {
       setConvertedAmount(null);
       setConvertedTo("");
@@ -57,7 +57,7 @@ const CurrencyConverter = () => {
   };
 
   return (
-    <div className="container">
+    <div className="container text-center pt-5">
       <h2 className="pb-2">Currency Converter</h2>
       <input
         type="number"
@@ -70,6 +70,7 @@ const CurrencyConverter = () => {
         value={fromCurrency}
         onChange={handleFromCurrencyChange}
       >
+        <option value="">Select currency</option>
         {Object.keys(exchangeRates).map((currency) => (
           <option key={currency} value={currency}>
             {currency}
@@ -81,6 +82,7 @@ const CurrencyConverter = () => {
         value={toCurrency}
         onChange={handleToCurrencyChange}
       >
+        <option value="">Select currency</option>
         {Object.keys(exchangeRates).map((currency) => (
           <option key={currency} value={currency}>
             {currency}
@@ -93,10 +95,10 @@ const CurrencyConverter = () => {
         Exchange
       </button>
       {error && <p>{error}</p>}
+      <br></br>
       <h3 className="mt-2">
         {convertedAmount !== null ? convertedAmount.toFixed(2) : ""}
-        {convertedTo && ` ${toCurrency}`}{" "}
-        {/* Display the currency it is converted to */}
+        {convertedTo && ` ${toCurrency}`}
       </h3>
     </div>
   );
