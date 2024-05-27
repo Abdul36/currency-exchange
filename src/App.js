@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Container, Row, Col, Form, Button } from "react-bootstrap";
 import "bootstrap/dist/css/bootstrap.min.css"; // Import Bootstrap CSS
+import "./App.css";
 
 const CurrencyConverter = () => {
   const [exchangeRates, setExchangeRates] = useState({});
@@ -96,7 +97,7 @@ const CurrencyConverter = () => {
           </Col>
         </Row>
         <Row className="justify-content-center">
-          <Col xs={12} md={4}>
+          <Col xs={12} md={4} className="mt-3 mt-md-0">
             <Button
               className="w-100"
               variant="primary"
