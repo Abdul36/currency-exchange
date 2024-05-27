@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from "react";
+import { Container, Row, Col, Form, Button } from "react-bootstrap";
+import "bootstrap/dist/css/bootstrap.min.css"; // Import Bootstrap CSS
 
 const CurrencyConverter = () => {
   const [exchangeRates, setExchangeRates] = useState({});
@@ -11,10 +13,10 @@ const CurrencyConverter = () => {
 
   useEffect(() => {
     fetchExchangeRates();
-  }, [fromCurrency, toCurrency]); // Fetch exchange rates when either fromCurrency or toCurrency changes
+  }, [fromCurrency, toCurrency]);
 
   const fetchExchangeRates = () => {
-    if (!fromCurrency || !toCurrency) return; // Skip fetching if fromCurrency or toCurrency is not selected
+    if (!fromCurrency || !toCurrency) return;
     fetch(
       `https://v6.exchangerate-api.com/v6/3e55e2db16acecc7e256b7f6/latest/${fromCurrency}`
     )
@@ -57,50 +59,60 @@ const CurrencyConverter = () => {
   };
 
   return (
-    <div className="container text-center pt-5">
-      <h2 className="pb-2">Currency Converter</h2>
-      <input
-        type="number"
-        value={amount}
-        onChange={handleAmountChange}
-        placeholder="Enter amount"
-      />
-      <select
-        className="ms-2"
-        value={fromCurrency}
-        onChange={handleFromCurrencyChange}
-      >
-        <option value="">Select currency</option>
-        {Object.keys(exchangeRates).map((currency) => (
-          <option key={currency} value={currency}>
-            {currency}
-          </option>
-        ))}
-      </select>
-      <select
-        className="ms-2"
-        value={toCurrency}
-        onChange={handleToCurrencyChange}
-      >
-        <option value="">Select currency</option>
-        {Object.keys(exchangeRates).map((currency) => (
-          <option key={currency} value={currency}>
-            {currency}
-          </option>
-        ))}
-      </select>
-      <br></br>
-      <br></br>
-      <button className="ms-2 mt-1 btn btn-primary" onClick={handleExchange}>
-        Exchange
-      </button>
-      {error && <p>{error}</p>}
-      <br></br>
-      <h3 className="mt-2">
+    <Container className="pt-5">
+      <h2 className="pb-2 text-center">Currency Converter</h2>
+      <Form>
+        <Row className="mb-3">
+          <Col xs={12} md={4}>
+            <Form.Control
+              type="number"
+              value={amount}
+              onChange={handleAmountChange}
+              placeholder="Enter amount"
+            />
+          </Col>
+          <Col xs={6} md={4}>
+            <Form.Select
+              value={fromCurrency}
+              onChange={handleFromCurrencyChange}
+            >
+              <option value="">Select currency</option>
+              {Object.keys(exchangeRates).map((currency) => (
+                <option key={currency} value={currency}>
+                  {currency}
+                </option>
+              ))}
+            </Form.Select>
+          </Col>
+          <Col xs={6} md={4}>
+            <Form.Select value={toCurrency} onChange={handleToCurrencyChange}>
+              <option value="">Select currency</option>
+              {Object.keys(exchangeRates).map((currency) => (
+                <option key={currency} value={currency}>
+                  {currency}
+                </option>
+              ))}
+            </Form.Select>
+          </Col>
+        </Row>
+        <Row className="justify-content-center">
+          <Col xs={12} md={4}>
+            <Button
+              className="w-100"
+              variant="primary"
+              onClick={handleExchange}
+            >
+              Exchange
+            </Button>
+          </Col>
+        </Row>
+      </Form>
+      {error && <p className="text-danger text-center mt-3">{error}</p>}
+      <h3 className="mt-3 text-center">
         {convertedAmount !== null ? convertedAmount.toFixed(2) : ""}
         {convertedTo && ` ${toCurrency}`}
       </h3>
-    </div>
+    </Container>
   );
 };
 
